@@ -1,55 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import AggregateConfig from '../components/AggregateConfig';
-import DataUploader from '../components/DataUploader';
-import ResultTable from '../components/ResultTable';
-import CacheStatus from '../components/CacheStatus';
-import PedagogicPanel from '../components/PedagogicPanel';
+import React, { useState } from 'react';
 
 export default function Home() {
-  const [data, setData] = useState([]);
+  const [file, setFile] = useState(null);
+  const [columns, setColumns] = useState([]);
+  const [aggregationKey, setAggregationKey] = useState('');
+  const [aggregationType, setAggregationType] = useState('count');
   const [aggregates, setAggregates] = useState([]);
   const [cacheInfo, setCacheInfo] = useState(null);
 
-  const fetchAggregates = async () => {
-    const res = await fetch('/api/aggregates');
+  const handleUpload = async () => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      body: formData,
+    });
+
     const json = await res.json();
-    setAggregates(json.aggregates);
-    setCacheInfo(json.cache);
+    if (json.columns) {
+      setColumns(json.columns);
+    }
   };
 
-  useEffect(() => {
-    fetchAggregates();
-  }, []);
+  const handleAggregate = async () => {
+    const res = await fetch(`/api/aggregates?key=${aggregationKey}&agg=${aggregationType}`);
+    const json = await res.json();
+    setAggregates(json.data);
+    setCacheInfo(json.cacheInfo);
+  };
 
   return (
-    <div className="min-h-screen px-6 py-10 bg-gray-50 text-gray-800">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center text-indigo-700 mb-4">
-          ⚡ Query Optimizer Dashboard
-        </h1>
-        <p className="text-center text-gray-600 text-lg mb-8">
-          Plateforme pédagogique illustrant l'optimisation des requêtes OLAP avec Next.js, ISR et vues matérialisées dynamiques.
-        </p>
+    <div className="p-6 max-w-4xl mx-auto text-gray-800">
+      <h1 className="text-3xl font-bold text-blue-600 mb-4">⚡ Query Optimizer Dashboard</h1>
 
-        <div className="grid gap-6">
-          <section className="bg-white p-4 shadow rounded">
-            <h2 className="text-xl font-semibold mb-2 text-indigo-600">📌 Fonctionnement général</h2>
-            <ul className="list-disc list-inside text-sm space-y-1 text-gray-700">
-              <li>📁 Téléversez un fichier CSV métier.</li>
-              <li>⚙️ L'API transforme les données et génère une vue matérialisée.</li>
-              <li>📊 L'agrégat est mis en cache en JSON avec date de génération.</li>
-              <li>🔁 Une revalidation ISR met à jour les données automatiquement.</li>
-              <li>🧠 Les concepts sont expliqués directement dans l’interface.</li>
-            </ul>
-          </section>
-
-          <DataUploader setData={setData} onUpload={fetchAggregates} />
-          <AggregateConfig data={data} onConfig={fetchAggregates} />
-          <CacheStatus cache={cacheInfo} />
-          <ResultTable data={aggregates} />
-          <PedagogicPanel />
-        </div>
+      <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+        <h2 className="font-semibold text-lg">📘 Fonctionnement général</h2>
+        <ul className="list-disc ml-6 text-sm">
+          <li>📂 Téléversez un fichier CSV</li>
+          <li>🔑 Choisissez une colonne d’agrégation</li>
+          <li>📊 Sélectionnez le type d’agrégat (count, sum, avg)</li>
+          <li>📦 Agrégation stockée avec cache automatique (ISR)</li>
+        </ul>
       </div>
+
+      <div className="mb-4">
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} className="mb-2" />
+        <button onClick={handleUpload} className="bg-blue-600 text-white px-4 py-2 rounded">Charger le fichier</button>
+      </div>
+
+      {columns.length > 0 && (
+        <div className="bg-gray-50 p-4 rounded shadow mb-6">
+          <h2 className="font-medium mb-2">⚙️ Options d’Agrégation</h2>
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <select value={aggregationKey} onChange={(e) => setAggregationKey(e.target.value)} className="border p-2 rounded">
+              <option value="">-- Choisir une colonne --</option>
+              {columns.map((col, i) => (
+                <option key={i} value={col}>{col}</option>
+              ))}
+            </select>
+            <select value={aggregationType} onChange={(e) => setAggregationType(e.target.value)} className="border p-2 rounded">
+              <option value="count">Nombre (count)</option>
+              <option value="sum">Somme (sum)</option>
+              <option value="avg">Moyenne (avg)</option>
+            </select>
+            <button onClick={handleAggregate} className="bg-green-600 text-white px-4 py-2 rounded">Générer</button>
+          </div>
+        </div>
+      )}
+
+      {cacheInfo && (
+        <div className="text-sm text-gray-600 mb-4">
+          <strong>Cache actuel :</strong> Généré le {cacheInfo.generatedAt} — Expire dans {cacheInfo.ttl} secondes
+        </div>
+      )}
+
+      {aggregates.length > 0 && (
+        <table className="w-full table-auto border-collapse border mt-4">
+          <thead>
+            <tr className="bg-blue-100">
+              <th className="border px-4 py-2">{aggregationKey}</th>
+              <th className="border px-4 py-2">{aggregationType}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {aggregates.map((row, i) => (
+              <tr key={i} className="text-sm text-center">
+                <td className="border px-4 py-1">{row.key}</td>
+                <td className="border px-4 py-1">{row.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
