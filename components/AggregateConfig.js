@@ -7,11 +7,11 @@ export default function AggregateConfig({ data, keyValue, aggValue, onChangeKey,
 
   return (
     <div className="bg-white p-4 shadow rounded">
-      <h2 className="text-lg font-semibold mb-4 text-indigo-700">鈿欙笍 G茅n茅ration personnalis茅e des Agr茅gats</h2>
+      <h2 className="text-lg font-semibold mb-4 text-indigo-700">⚙️ Génération personnalisée des Agrégats</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">馃搶 Colonne 脿 agr茅ger</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">📌 Colonne à agréger</label>
           <select
             value={keyValue}
             onChange={(e) => onChangeKey(e.target.value)}
@@ -27,7 +27,7 @@ export default function AggregateConfig({ data, keyValue, aggValue, onChangeKey,
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">馃搳 Type d鈥檃gr茅gation</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">📊 Type d’agrégation</label>
           <select
             value={aggValue}
             onChange={(e) => onChangeAgg(e.target.value)}
@@ -41,7 +41,7 @@ export default function AggregateConfig({ data, keyValue, aggValue, onChangeKey,
 
         <div className="flex items-end">
           <p className="text-sm text-gray-600">
-            Choisissez une colonne et une m茅thode d鈥檃gr茅gation pour afficher les r茅sultats.
+            Choisissez une colonne et une méthode d’agrégation pour afficher les résultats.
           </p>
         </div>
       </div>
