@@ -17,7 +17,7 @@ export default function handler(req, res) {
     return res.status(405).json({ error: 'Méthode non autorisée' });
   }
 
-  const form = new IncomingForm({ multiples: false, keepExtensions: true });
+  const form = new formidable({ multiples: false });
 
   form.parse(req, async (err, fields, files) => {
     try {
