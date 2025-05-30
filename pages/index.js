@@ -9,13 +9,21 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [aggregates, setAggregates] = useState([]);
   const [cacheInfo, setCacheInfo] = useState(null);
+
   const [key, setKey] = useState('');
   const [aggType, setAggType] = useState('count');
+  const [valueKey, setValueKey] = useState('');
 
   const fetchAggregates = async () => {
-    if (!key) return;
+    if (!key || !aggType) return;
 
-    const res = await fetch(`/api/aggregates?key=${key}&agg=${aggType}`);
+    const params = new URLSearchParams({
+      key,
+      agg: aggType,
+      valueKey,
+    });
+
+    const res = await fetch(`/api/aggregates?${params.toString()}`);
     const json = await res.json();
     setAggregates(json.aggregates);
     setCacheInfo(json.cache);
@@ -23,7 +31,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchAggregates();
-  }, [key, aggType]);
+  }, [key, aggType, valueKey]);
 
   return (
     <div className="min-h-screen px-6 py-10 bg-gray-50 text-gray-800">
@@ -40,20 +48,24 @@ export default function Home() {
             <h2 className="text-xl font-semibold mb-2 text-indigo-600">📌 Fonctionnement général</h2>
             <ul className="list-disc list-inside text-sm space-y-1 text-gray-700">
               <li>📁 Téléversez un fichier CSV métier.</li>
-              <li>⚙️ Choisissez la colonne et l'agrégation (count, sum, avg).</li>
-              <li>📊 L'agrégat est mis en cache et rafraîchi automatiquement.</li>
+              <li>⚙️ Choisissez la colonne clé, la valeur numérique, et le type d’agrégat.</li>
+              <li>📊 L'agrégat est mis en cache et mis à jour automatiquement.</li>
               <li>🧠 Les concepts sont affichés et expliqués dans l’interface.</li>
             </ul>
           </section>
 
           <DataUploader setData={setData} onUpload={fetchAggregates} />
+
           <AggregateConfig
             data={data}
             keyValue={key}
+            valueKey={valueKey}
             aggValue={aggType}
             onChangeKey={setKey}
             onChangeAgg={setAggType}
+            onChangeValueKey={setValueKey}
           />
+
           <CacheStatus cache={cacheInfo} />
           <ResultTable data={aggregates} />
           <PedagogicPanel />
