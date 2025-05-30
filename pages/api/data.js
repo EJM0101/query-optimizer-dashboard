@@ -26,7 +26,7 @@ export default function handler(req, res) {
         return res.status(500).json({ error: 'Erreur de parsing' });
       }
 
-      const uploadedFile = files.file;
+      const uploadedFile = files.file[0];
 
       if (!uploadedFile || !uploadedFile.filepath) {
         return res.status(400).json({ error: 'Aucun fichier trouvé.' });
