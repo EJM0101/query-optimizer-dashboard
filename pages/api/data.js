@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { IncomingForm } from 'formidable';
+import formidable from 'formidable';
 import Papa from 'papaparse';
 
 export const config = {
