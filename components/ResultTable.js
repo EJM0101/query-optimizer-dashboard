@@ -1,20 +1,29 @@
 import React from 'react';
 
 export default function ResultTable({ data }) {
-  if (!data || data.length === 0) return <p>Aucun agrégat disponible.</p>;
-
-  const headers = Object.keys(data[0]);
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white p-4 shadow rounded text-center text-gray-500">
+        Aucun agrégat disponible. Veuillez téléverser un fichier et configurer l’agrégation.
+      </div>
+    );
+  }
 
   return (
-    <div className="overflow-auto bg-white shadow rounded mt-4">
-      <table className="table-auto w-full text-sm">
-        <thead className="bg-gray-200">
-          <tr>{headers.map(h => <th key={h} className="p-2">{h}</th>)}</tr>
+    <div className="bg-white p-4 shadow rounded">
+      <h2 className="text-lg font-semibold mb-4 text-indigo-700">📊 Résultats de l’agrégation</h2>
+      <table className="w-full table-auto border-collapse">
+        <thead>
+          <tr className="bg-indigo-50 text-indigo-800">
+            <th className="border px-4 py-2 text-left">Valeur de regroupement</th>
+            <th className="border px-4 py-2 text-left">Valeur agrégée</th>
+          </tr>
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={idx} className="border-t">
-              {headers.map(key => <td key={key} className="p-2">{row[key]}</td>)}
+            <tr key={idx} className="hover:bg-gray-50">
+              <td className="border px-4 py-2">{row.key}</td>
+              <td className="border px-4 py-2">{row.value}</td>
             </tr>
           ))}
         </tbody>
